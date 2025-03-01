@@ -1,0 +1,100 @@
+{% extends "layout.html" %}
+{% block title %} ตะกร้าสินค้าของฉัน {% endblock %}
+{% load humanize %}
+{% block content %}
+
+{% if not cartItem %}
+<!-- เนื้อหา (Content) -->
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promtpay QR Code Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+        #qrcode {
+            margin: 20px;
+        }
+        input, button {
+            padding: 10px;
+            font-size: 16px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Promtpay QR Code Generator</h1>
+    <label for="phone">Promtpay Phone Number:</label>
+    <input type="text" id="phone" placeholder="Enter phone number (e.g., 0812345678)">
+    <label for="amount">Amount (THB):</label>
+    <input type="number" id="amount" placeholder="Enter amount (optional)">
+    <button onclick="generateQRCode()">Generate QR Code</button>
+    <div id="qrcode"></div>
+
+    <!-- Include qrcode.min.js -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <script>
+        function generateQRCode() {
+            const phone = document.getElementById('phone').value.trim();
+            const amount = document.getElementById('amount').value.trim();
+            const qrcodeContainer = document.getElementById('qrcode');
+
+            // Clear previous QR code
+            qrcodeContainer.innerHTML = "";
+
+            if (!phone) {
+                alert("Please enter a valid Promtpay phone number!");
+                return;
+            }
+
+            // Generate Promtpay QR Code data
+            const promtpayData = generatePromtpayQRData(phone, amount);
+
+            // Generate QR code
+            QRCode.toCanvas(qrcodeContainer, promtpayData, {
+                width: 250,
+                margin: 2,
+            }, function (error) {
+                if (error) console.error(error);
+            });
+        }
+
+        function generatePromtpayQRData(phone, amount) {
+            const payloadFormatIndicator = "000201"; // Fixed value
+            const applicationTemplate = "0016A000000677010111"; // Promtpay ID
+            const merchantAccountInfo = `2937${applicationTemplate}01130066${phone.length}${phone}`;
+            const transactionAmount = amount ? `54${String(amount).length}${amount}` : "";
+            const countryCode = "5802TH"; // Country code for Thailand
+            const crcPlaceholder = "6304"; // CRC placeholder
+
+            const rawData = `${payloadFormatIndicator}${merchantAccountInfo}${transactionAmount}${countryCode}${crcPlaceholder}`;
+            const crc = calculateCRC(rawData);
+
+            return `${rawData}${crc}`;
+        }
+
+        function calculateCRC(data) {
+            let crc = 0xFFFF;
+            for (let i = 0; i < data.length; i++) {
+                crc ^= data.charCodeAt(i) << 8;
+                for (let j = 0; j < 8; j++) {
+                    if ((crc & 0x8000) !== 0) {
+                        crc = (crc << 1) ^ 0x1021;
+                    } else {
+                        crc = crc << 1;
+                    }
+                }
+            }
+            return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, "0");
+        }
+    </script>
+</body>
+</html>
+{% endblock %}
