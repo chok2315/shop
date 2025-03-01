@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+{% load humanize %}
+
+{% block title %} หน้าแรกของเว็บไซต์ {% endblock %}
+
+{% block content %}
+<!-- เนื้อหา (Content) -->
+<section class="content2 cid-tsEQSCqggh" id="content2-2">
+    <div class="container">
+        <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+              <div class="carousel-item active" data-bs-interval="10000">
+                <img src="https://media-cdn.bnn.in.th/465614/ClaimAMDPureThinLightGamingNotebookQ1FY25-2000x720-160125_310325-homepage_desktop_banner_medium.jpg" class="d-block w-100" alt="...">
+              </div>
+              <div class="carousel-item" data-bs-interval="2000">
+                <img src="https://media-cdn.bnn.in.th/465614/ClaimAMDPureThinLightGamingNotebookQ1FY25-2000x720-160125_310325-homepage_desktop_banner_medium.jpg" class="d-block w-100" alt="...">
+              </div>
+              <div class="carousel-item">
+                <img src="..." class="d-block w-100" alt="...">
+              </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleInterval" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+            </button>
+          </div>
+    </div>
+
+    <div class="container mt-5">
+        <div class="mbr-section-head">
+            <h4 class="mbr-section-title mbr-fonts-style align-center mb-0 display-2">
+                <strong>สินค้ายอดนิยม</strong>
+            </h4>
+        </div>
+        <div class="row mt-4">
+            <!-- ข้อมูลสินค้า-->
+            {% for product in products %}
+            <div class="item features-image сol-12 col-md-6 col-lg-4">
+                <div class="item-wrapper">
+                    <div class="item-img">
+                        <a href="{% url 'productDetail' product.id %}">
+                            <img src="{{product.image.url}}">
+                        </a>
+                    </div>
+                    <div class="item-content">
+                        <h6 class="item-subtitle mbr-fonts-style mt-1 display-7">
+                            <strong>ชื่อสินค้า : {{product.name}}</strong>
+                        </h6>
+                        <div class="d-flex justify-content-center">
+                            <p class="mbr-text mbr-fonts-style mt-3 display-7">
+                                ราคา {{ product.price | intcomma }} บาท
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mbr-section-btn item-footer mt-2 text-center">
+                        {% if product.stock <= 0 %} <h2 class="text-secondary"><strong>สินค้าหมด</strong></h2>
+                            {% else %}
+                            <a href="{% url 'addCart' product.id %}" class="btn btn-primary display-4">
+                                <i class="bi bi-cart3"></i>&nbsp; เพิ่มสินค้าลงตะกร้า
+                            </a>
+                            {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
